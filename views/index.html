@@ -3,47 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>College Admission Form</title>
+    <title>Apex University Portal</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <nav>
-        <h2>University Admission Portal</h2>
-        <div>
-            <a href="/">Apply Now</a>
-            <a href="/admin" class="btn">Admin Panel</a>
+        <h2>Apex Global University</h2>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/apply">Apply Now</a>
+            
+            <div class="dropdown">
+                <button class="dropbtn">Login ▼</button>
+                <div class="dropdown-content">
+                    <div class="dropdown-content-inner">
+                        <a href="/student-login">Student Login</a>
+                        <a href="/admin-login">Admin Login</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
-    <main>
-        <div class="form-container">
-            <h3>Undergraduate Admission Form</h3>
-            <p style="color: #666; margin-bottom: 20px;">Please fill out your details carefully to apply.</p>
-            
-            <form action="/api/apply" method="POST">
-                <label>Full Name</label>
-                <input type="text" name="name" placeholder="John Doe" required>
 
-                <label>Email Address</label>
-                <input type="email" name="email" placeholder="john@example.com" required>
-
-                <label>Phone Number</label>
-                <input type="tel" name="phone" placeholder="1234567890" required>
-
-                <label>Desired Course</label>
-                <select name="course" required style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px;">
-                    <option value="">-- Select Course --</option>
-                    <option value="Computer Science">B.Tech Computer Science</option>
-                    <option value="Information Technology">B.Tech Information Technology</option>
-                    <option value="Business Administration">BBA (Business Administration)</option>
-                    <option value="Data Science">B.Sc Data Science</option>
-                </select>
-
-                <label>12th Grade / High School Percentage (%)</label>
-                <input type="number" step="0.01" name="marks12th" placeholder="e.g. 85.5" min="0" max="100" required>
-
-                <button type="submit">Submit Application</button>
-            </form>
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Ignite Your Intellect. Discover Your Purpose.</h1>
+            <p>Undergraduate Admissions are now open for the 2026 academic intake cycles. Learn from field-leading experts.</p>
         </div>
-    </main>
+    </div>
+
+    <div class="info-section">
+        <div class="grid">
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=500&q=80" alt="Campus Research Facility">
+                <h3>Advanced Science Labs</h3>
+                <p>Gain uninhibited hardware resource access across deep neural compute configurations, engineering assembly layouts, and high-velocity networks.</p>
+            </div>
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=500&q=80" alt="University Lecture Hall">
+                <h3>Distinguished Faculty</h3>
+                <p>Study under experienced mentors, industry advisors, and acclaimed researchers who track active field challenges directly into the curriculum.</p>
+            </div>
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?auto=format&fit=crop&w=500&q=80" alt="Students Collaborating">
+                <h3>Global Opportunities</h3>
+                <p>Join a community with strong institutional placement links, international exchange programs, and dynamic innovation pipelines.</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

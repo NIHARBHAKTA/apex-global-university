@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admission Form</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav>
+        <h2>Apex Global University</h2>
+        <div class="nav-links"><a href="/">Home</a></div>
+    </nav>
+    <main>
+        <div class="form-container">
+            <h3>Undergraduate Registration Form</h3>
+            <form action="/api/apply" method="POST">
+                <label>Full Applicant Name</label>
+                <input type="text" name="name" required placeholder="Nihar Bhakta">
+                
+                <label>Email Address</label>
+                <input type="email" name="email" required placeholder="nihar@example.com">
+                
+                <label>Active Contact Phone</label>
+                <input type="tel" name="phone" required placeholder="9876543210">
+                
+                <label>Selected Department Track</label>
+                <select name="course" required>
+                    <option value="Computer Science">Computer Science Engineering (CSE)</option>
+                    <option value="Information Technology">Information Technology (IT)</option>
+                    <option value="Data Science">Data Science Operations (DSA)</option>
+                </select>
+                
+                <label>12th Cumulative Scoring Percentage (%)</label>
+                <input type="number" step="0.01" name="marks12th" min="0" max="100" required placeholder="94.60">
+                
+                <button type="submit" class="btn-submit">Submit Form</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav>
+        <h2>Operational Admin Desk</h2>
+        <div class="nav-links">
+            <a href="/api/logout"
+                style="background:var(--danger); padding:8px 16px; border-radius:6px; font-weight:600;">Exit Desk</a>
+        </div>
+    </nav>
+    <main style="max-width: 1250px;">
+        <h3>Review Applicant Document Queue</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Applicant Student</th>
+                    <th>Email Contact</th>
+                    <th>Selected Track</th>
+                    <th>12th Grade %</th>
+                    <th>Status</th>
+                    <th>Evaluation Decision Handlers</th>
+                </tr>
+            </thead>
+            <tbody id="apps-table-body"></tbody>
+        </table>
+    </main>
+    <script src="/js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student Portal Gateway</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav>
+        <h2>Student Identity Gate</h2>
+        <div class="nav-links"><a href="/">Home</a></div>
+    </nav>
+    <main style="max-width: 500px;">
+        <div class="form-container">
+            <h3>Matriculated Workspace Entry</h3>
+            <p style="color:#64748b; font-size:13px; margin-bottom:15px;">Please check your inbox. Input the Assigned
+                Unique Name and Access Number sent to you upon administrative approval.</p>
+            <form id="studentLoginForm">
+                <label>Assigned Unique Name</label>
+                <input type="text" id="studUniqueName" required placeholder="e.g., STUD-NIHAR-1234">
+
+                <label>Unique Access Number</label>
+                <input type="password" id="studAccessNumber" required placeholder="e.g., 98765">
+
+                <button type="submit" class="btn-submit">Verify Credentials</button>
+            </form>
+            <p id="error-msg"
+                style="color:var(--danger); text-align:center; margin-top:15px; font-weight:600; min-height: 20px;"></p>
+        </div>
+    </main>
+    <script src="/js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Secure Gateway - Login</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav>
+        <h2>Administrative Gateway</h2>
+        <div class="nav-links"><a href="/">Home</a></div>
+    </nav>
+    <main style="max-width: 500px;">
+        <div class="form-container">
+            <h3>Admin Secure Login</h3>
+            <form id="adminLoginForm">
+                <label>Emailed Unique Name</label>
+                <input type="text" id="loginUniqueName" required placeholder="e.g., ADMIN-NIHAR-1234">
+                
+                <label>Unique Access Number</label>
+                <input type="password" id="loginAccessNumber" required placeholder="e.g., 54321">
+                
+                <button type="submit" class="btn-submit" style="background:var(--success);">Log Into Portal</button>
+            </form>
+            <p style="margin-top: 20px; text-align: center; font-size: 14px;">
+                New administrator? <a href="/admin-register" style="color: var(--accent); font-weight: 600;">Register here</a>
+            </p>
+            <p id="error-msg" style="color:var(--danger); text-align:center; margin-top:15px; font-weight:600; min-height: 20px;"></p>
+        </div>
+    </main>
+    <script src="/js/app.js"></script>
+</body>
+</html>
