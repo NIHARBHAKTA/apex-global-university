@@ -13,7 +13,9 @@ const app = express();
 
 // Middleware Engine Mounting
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({
+    extended: true
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -25,9 +27,21 @@ mongoose.connect(process.env.MONGO_URI)
 // 📧 NODEMAILER DISPATCH MAIL CARRIER TRANSPORTER
 const transporter = nodemailer.createTransport({
     service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Use true for port 465 (SSL)
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        pass: process.env.EMAIL_PASS, // Reads the 16-character App Password securely from environment
+    },
+});
+
+// Always verify the connection configuration on startup
+transporter.verify((error, success) => {
+    if (error) {
+        console.error('Nodemailer configuration error:', error);
+    } else {
+        console.log('Server is ready to send emails successfully!');
     }
 });
 
@@ -80,28 +94,53 @@ const sendStudentApprovalEmail = async (destEmail, studentName, uniqueName, acce
 
 // --- JWT AUTHORIZATION TOKEN UTILITIES ---
 const generateTokens = (user) => {
-    const accessToken = jwt.sign(
-        { id: user._id, username: user.username, role: user.role },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '15m' }
+    const accessToken = jwt.sign({
+            id: user._id,
+            username: user.username,
+            role: user.role
+        },
+        process.env.ACCESS_TOKEN_SECRET, {
+            expiresIn: '15m'
+        }
     );
-    const refreshToken = jwt.sign(
-        { id: user._id },
-        process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: '7d' }
+    const refreshToken = jwt.sign({
+            id: user._id
+        },
+        process.env.REFRESH_TOKEN_SECRET, {
+            expiresIn: '7d'
+        }
     );
-    return { accessToken, refreshToken };
+    return {
+        accessToken,
+        refreshToken
+    };
 };
 
 const setCookies = (res, accessToken, refreshToken) => {
-    res.cookie('accessToken', accessToken, { httpOnly: true, secure: false, maxAge: 15 * 60 * 1000 });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, maxAge: 7 * 24 * 60 * 60 * 1000 });
+    // Check if the current context environment is running inside Render production cloud
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: isProduction, // Automatically flags true for HTTPS deployment contexts
+        sameSite: isProduction ? 'none' : 'lax', // Handles cross-site token context policies correctly
+        maxAge: 15 * 60 * 1000
+    });
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 };
 
 // --- SECURE AUTH MIDDLEWARE (HANDLES REDIRECTS VS API RESTRICTS) ---
 const verifyRole = (role) => {
     return async (req, res, next) => {
-        const { accessToken, refreshToken } = req.cookies;
+        const {
+            accessToken,
+            refreshToken
+        } = req.cookies;
         const isApiRequest = req.originalUrl.startsWith('/api/');
 
         if (!accessToken) {
@@ -112,7 +151,10 @@ const verifyRole = (role) => {
             const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
             if (role && decoded.role !== role) {
                 if (isApiRequest) {
-                    return res.status(403).json({ success: false, message: 'Forbidden: Insufficient privileges.' });
+                    return res.status(403).json({
+                        success: false,
+                        message: 'Forbidden: Insufficient privileges.'
+                    });
                 }
                 return res.status(403).send('<h1>403 Forbidden</h1><p>You do not have access privileges for this workspace panel.</p>');
             }
@@ -127,7 +169,10 @@ const verifyRole = (role) => {
 const tryRefresh = async (req, res, next, refreshToken, requiredRole, isApiRequest) => {
     if (!refreshToken) {
         if (isApiRequest) {
-            return res.status(401).json({ success: false, message: 'Unauthorized: Session credentials expired.' });
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized: Session credentials expired.'
+            });
         }
         return res.redirect(requiredRole === 'admin' ? '/admin-login' : '/student-login');
     }
@@ -144,7 +189,10 @@ const tryRefresh = async (req, res, next, refreshToken, requiredRole, isApiReque
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
         if (isApiRequest) {
-            return res.status(401).json({ success: false, message: 'Unauthorized: Invalid authentication state.' });
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized: Invalid authentication state.'
+            });
         }
         return res.redirect(requiredRole === 'admin' ? '/admin-login' : '/student-login');
     }
@@ -163,12 +211,14 @@ app.get('/student', verifyRole('student'), (req, res) => res.sendFile(path.resol
 
 // --- CORE SYSTEM API ACTIONS ---
 
-// Student Submits Admission Application Form (WITH SHORTENED ALERTS)
+// Student Submits Admission Application Form
 app.post('/api/apply', async (req, res) => {
     try {
-        const duplicated = await Application.findOne({ email: req.body.email });
+        const duplicated = await Application.findOne({
+            email: req.body.email
+        });
         if (duplicated) return res.status(400).send('<script>alert("Email already applied!"); window.history.back();</script>');
-        
+
         const newApp = new Application(req.body);
         await newApp.save();
         res.send('<script>alert("Application logged!"); window.location.href="/";</script>');
@@ -180,44 +230,90 @@ app.post('/api/apply', async (req, res) => {
 // Admin Registers for an Account
 app.post('/api/admin/register', async (req, res) => {
     try {
-        const { username, email, phone } = req.body;
-        const exists = await User.findOne({ username });
-        if (exists) return res.json({ success: false, message: 'Username already registered.' });
+        const {
+            username,
+            email,
+            phone
+        } = req.body;
+        const exists = await User.findOne({
+            username
+        });
+        if (exists) return res.json({
+            success: false,
+            message: 'Username already registered.'
+        });
 
         const cleanName = username.toUpperCase().replace(/\s+/g, '');
         const phoneTail = phone.slice(-4);
         const uniqueName = `ADMIN-${cleanName}-${phoneTail}`;
         const accessNumber = Math.floor(10000 + Math.random() * 90000).toString();
 
-        const admin = new User({ username, email, phone, adminUniqueName: uniqueName, adminAccessNumber: accessNumber, role: 'admin' });
+        const admin = new User({
+            username,
+            email,
+            phone,
+            adminUniqueName: uniqueName,
+            adminAccessNumber: accessNumber,
+            role: 'admin'
+        });
         await admin.save();
         await sendAdminEmail(email, uniqueName, accessNumber);
-        res.json({ success: true, message: 'Registration Successful! Your credentials have been emailed.' });
+        res.json({
+            success: true,
+            message: 'Registration Successful! Your credentials have been emailed.'
+        });
     } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 });
 
 // Admin Login
 app.post('/api/admin/login', async (req, res) => {
-    const { adminUniqueName, adminAccessNumber } = req.body;
-    const user = await User.findOne({ adminUniqueName, adminAccessNumber, role: 'admin' });
-    if (!user) return res.json({ success: false, message: 'Invalid Unique Admin Credentials' });
+    const {
+        adminUniqueName,
+        adminAccessNumber
+    } = req.body;
+    const user = await User.findOne({
+        adminUniqueName,
+        adminAccessNumber,
+        role: 'admin'
+    });
+    if (!user) return res.json({
+        success: false,
+        message: 'Invalid Unique Admin Credentials'
+    });
     const tokens = generateTokens(user);
     setCookies(res, tokens.accessToken, tokens.refreshToken);
-    res.json({ success: true });
+    res.json({
+        success: true
+    });
 });
 
 // Student Login Verification Endpoint
 app.post('/api/student/login', async (req, res) => {
-    const { studentUniqueName, studentAccessNumber } = req.body;
-    const user = await User.findOne({ studentUniqueName, studentAccessNumber, role: 'student' });
+    const {
+        studentUniqueName,
+        studentAccessNumber
+    } = req.body;
+    const user = await User.findOne({
+        studentUniqueName,
+        studentAccessNumber,
+        role: 'student'
+    });
     if (!user) {
-        return res.json({ success: false, message: 'Invalid Unique Student Credentials. Please verify parameters received via email.' });
+        return res.json({
+            success: false,
+            message: 'Invalid Unique Student Credentials. Please verify parameters received via email.'
+        });
     }
     const tokens = generateTokens(user);
     setCookies(res, tokens.accessToken, tokens.refreshToken);
-    res.json({ success: true });
+    res.json({
+        success: true
+    });
 });
 
 // Fetch Applications Dashboard Queue (Admin Protected API)
@@ -228,10 +324,16 @@ app.get('/api/applications', verifyRole('admin'), async (req, res) => {
 
 // Admin Approval and Rejection Evaluator Handler (Admin Protected API)
 app.post('/api/applications/:id/:action', verifyRole('admin'), async (req, res) => {
-    const { id, action } = req.params;
+    const {
+        id,
+        action
+    } = req.params;
     try {
         const appData = await Application.findById(id);
-        if (!appData) return res.json({ success: false, message: 'Application record not found.' });
+        if (!appData) return res.json({
+            success: false,
+            message: 'Application record not found.'
+        });
 
         if (action === 'approve') {
             appData.status = 'Approved';
@@ -254,16 +356,25 @@ app.post('/api/applications/:id/:action', verifyRole('admin'), async (req, res) 
             });
             await studentUser.save();
 
-            return res.json({ success: true, message: `Approved! Access credentials successfully emailed to: ${appData.email}` });
-        } 
-        
+            return res.json({
+                success: true,
+                message: `Approved! Access credentials successfully emailed to: ${appData.email}`
+            });
+        }
+
         if (action === 'reject') {
             await Application.findByIdAndDelete(id);
-            return res.json({ success: true, message: 'Application denied and record deleted from system database.' });
+            return res.json({
+                success: true,
+                message: 'Application denied and record deleted from system database.'
+            });
         }
     } catch (err) {
         console.error("Admissions workflow error event detected:", err);
-        res.json({ success: false, message: 'Operational processing fault: ' + err.message });
+        res.json({
+            success: false,
+            message: 'Operational processing fault: ' + err.message
+        });
     }
 });
 
