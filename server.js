@@ -36,7 +36,10 @@ const transporter = nodemailer.createTransport({
     },
     tls: {
         rejectUnauthorized: false // Prevents cloud network handshake blocks on hosted environments
-    }
+    },
+    connectionTimeout: 10000, // 10 seconds timeout limit
+    greetingTimeout: 10000,
+    dnsTimeout: 10000
 });
 
 // Always verify the connection configuration on startup
@@ -124,8 +127,8 @@ const setCookies = (res, accessToken, refreshToken) => {
 
     res.cookie('accessToken', accessToken, {
         httpOnly: true,
-        secure: isProduction,               
-        sameSite: isProduction ? 'none' : 'lax', 
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
         maxAge: 15 * 60 * 1000
     });
     res.cookie('refreshToken', refreshToken, {
