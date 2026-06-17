@@ -24,22 +24,18 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB Cloud Cluster Connected Successfully...'))
     .catch(err => console.error('Database connection exception:', err));
 
-// 📧 NODEMAILER DISPATCH MAIL CARRIER TRANSPORTER (Optimized for Render Cloud)
+// 📧 NODEMAILER DISPATCH MAIL CARRIER TRANSPORTER (Bypasses Render Firewall Restrictions)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Must be false for port 587 (Upgrades automatically via STARTTLS)
+    secure: false, // Must be false for standard TLS upgrade session handshakes
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS, // Reads the 16-character App Password securely from environment
     },
     tls: {
-        rejectUnauthorized: false // Prevents cloud network handshake blocks on hosted environments
-    },
-    connectionTimeout: 10000, // 10 seconds timeout limit
-    greetingTimeout: 10000,
-    dnsTimeout: 10000
+        rejectUnauthorized: false, // Prevents cloud network handshake blocks on hosted environments
+        minVersion: "TLSv1.2"      // Forces modern TLS protocol handshake
+    }
 });
 
 // Always verify the connection configuration on startup
@@ -127,8 +123,8 @@ const setCookies = (res, accessToken, refreshToken) => {
 
     res.cookie('accessToken', accessToken, {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
+        secure: isProduction,               
+        sameSite: isProduction ? 'none' : 'lax', 
         maxAge: 15 * 60 * 1000
     });
     res.cookie('refreshToken', refreshToken, {
