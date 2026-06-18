@@ -25,25 +25,27 @@ mongoose.connect(process.env.MONGO_URI)
     .catch(err => console.error('Database connection exception:', err));
 
 // 📧 NODEMAILER DISPATCH MAIL CARRIER TRANSPORTER (Bypasses Render Firewall Restrictions)
+// 📧 NODEMAILER DISPATCH MAIL CARRIER TRANSPORTER (Optimized for Render Cloud Engine)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    secure: false, // Must be false for standard TLS upgrade session handshakes
+    host: 'smtp.gmail.com',
+    port: 465, // Use secure port directly 
+    secure: true, // Must be TRUE for port 465. Forces immediate SSL connection.
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Reads the 16-character App Password securely from environment
+        pass: process.env.EMAIL_PASS,
     },
     tls: {
-        rejectUnauthorized: false, // Prevents cloud network handshake blocks on hosted environments
-        minVersion: "TLSv1.2"      // Forces modern TLS protocol handshake
+        rejectUnauthorized: false, // Bypasses Render proxy network handshake blocks
+        minVersion: "TLSv1.2"
     }
 });
 
 // Always verify the connection configuration on startup
 transporter.verify((error, success) => {
     if (error) {
-        console.error('Nodemailer configuration error:', error);
+        console.error('❌ Render Nodemailer Connection Error Summary:', error.message);
     } else {
-        console.log('Server is ready to send emails successfully!');
+        console.log('🚀 Cloud Server connected to Gmail. Ready to dispatch emails!');
     }
 });
 
@@ -123,8 +125,8 @@ const setCookies = (res, accessToken, refreshToken) => {
 
     res.cookie('accessToken', accessToken, {
         httpOnly: true,
-        secure: isProduction,               
-        sameSite: isProduction ? 'none' : 'lax', 
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
         maxAge: 15 * 60 * 1000
     });
     res.cookie('refreshToken', refreshToken, {
